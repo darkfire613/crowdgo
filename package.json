@@ -1,0 +1,9 @@
+{
+  "name": "crowdgo",
+  "version": "0.0.1",
+  "description": "Play Go against everyone",
+  "dependencies": {
+    "express": "^4.9.0",
+    "socket.io": "^1.1.0"
+  }
+}
