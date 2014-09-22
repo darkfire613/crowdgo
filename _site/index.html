@@ -1,28 +1,8 @@
 <html>
  <head>
-  <script type="application/javascript">
-    function draw() {
-      var canvas = document.getElementById("canvas");
-      if (canvas.getContext) {
-        var ctx = canvas.getContext("2d");
-
-        ctx.fillStyle = "rgb(238, 221, 145)";
-        ctx.fillRect (25, 25, 850, 850);
-
-        for (var i = 0; i < 8; i++)
-          {
-            for (var j = 0; j < 8; j++)
-            {
-              ctx.lineWidth = 3;
-              ctx.strokeRect( (100*i)+50, (100*j)+50, 100, 100);
-            }
-          }
-
-      }
-    }
-  </script>
+  <script src="draw.js"></script>
  </head>
- <body onload="draw();">
-   <canvas id="canvas" width="900" height="900"></canvas>
+ <body>
+   <canvas id="canvas" width="850" height="850"></canvas>
  </body>
 </html>
