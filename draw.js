@@ -1,11 +1,14 @@
-//These are the reference variables.
-//Change REF_SQUARE to change square size, and board will scale
-//Change GRID_SIZE to change how many squares in each direction.
-//Change REF_LINE_WIDTH to change line thickness. Value is normal for 100px square.
-var REF_SQUARE = 60;
-var GRID_SIZE = 8;
-var REF_LINE_WIDTH = 3;
-var BOARD_SIZE = (REF_SQUARE * GRID_SIZE) + (REF_SQUARE / 2);
+//Variable ADJUST THESE
+var scale = 0.6;
+var grid_size = 8;
+var ref_line_width = 3;
+var margin_factor = 0.25;
+//Static DO NOT CHANGE
+var REF_SQUARE = 100;
+var SQUARE_SIZE = REF_SQUARE * scale;
+var LINE_WIDTH = SQUARE_SIZE * (ref_line_width/REF_SQUARE);
+var BOARD_MARGIN = SQUARE_SIZE * margin_factor;
+var BOARD_SIZE = (SQUARE_SIZE * grid_size) + (BOARD_MARGIN * 2);
 
 var turn = 0;
 
@@ -31,12 +34,12 @@ function draw()
     ctx.fillRect (0, 0, BOARD_SIZE, BOARD_SIZE);
 
 //draws the grid with double for loops
-    for (var i = 0; i < GRID_SIZE; i++)
+    for (var i = 0; i < grid_size; i++)
       {
-        for (var j = 0; j < GRID_SIZE; j++)
+        for (var j = 0; j < grid_size; j++)
         {
-          ctx.lineWidth = REF_SQUARE * (3/100);
-          ctx.strokeRect( (REF_SQUARE*i)+(REF_SQUARE/4), (REF_SQUARE*j)+(REF_SQUARE/4), REF_SQUARE, REF_SQUARE);
+          ctx.lineWidth = LINE_WIDTH;
+          ctx.strokeRect( (SQUARE_SIZE*i)+(SQUARE_SIZE/4), (SQUARE_SIZE*j)+(SQUARE_SIZE/4), SQUARE_SIZE, SQUARE_SIZE);
         }
       }
 
@@ -60,8 +63,8 @@ function getPosition(event)
   y -= canvas.offsetTop;
 
 //see notebook page 18 for explanation of formula.
-  var i = (x - (REF_SQUARE / 4)) / REF_SQUARE;
-  var j = (y - (REF_SQUARE / 4)) / REF_SQUARE;
+  var i = (x - BOARD_MARGIN) / SQUARE_SIZE;
+  var j = (y - BOARD_MARGIN) / SQUARE_SIZE;
 
   i = Math.round(i);
   j = Math.round(j);
@@ -71,9 +74,9 @@ function getPosition(event)
   var ctx = canvas.getContext("2d");
 
 //draws circle on intersection closest to click
-  var centerX = (REF_SQUARE / 4 ) + (i * REF_SQUARE);
-  var centerY = (REF_SQUARE / 4 ) + (j * REF_SQUARE);
-  var radius  = (REF_SQUARE / 4 );
+  var centerX = BOARD_MARGIN + (i * SQUARE_SIZE);
+  var centerY = BOARD_MARGIN + (j * SQUARE_SIZE);
+  var radius  = BOARD_MARGIN;
 
   console.log("centerX: " + centerX + " centerY: " + centerY);
 
