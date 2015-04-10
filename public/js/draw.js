@@ -82,9 +82,6 @@ function getPosition(event)
 
   socket.emit('boardClick', {'X': centerX, 'Y': centerY});
 
-  //drawCircle(centerX,centerY);
-
-  turn = (turn + 1) % 2;
 }
 
 function drawCircle(x,y)
@@ -108,4 +105,11 @@ function drawCircle(x,y)
   }
   ctx.fill();
   console.log("drew circle at x: " + x + " y: " + y);
+
+  swapTurn();
+}
+
+function swapTurn()
+{
+  turn = (turn + 1) % 2;
 }
