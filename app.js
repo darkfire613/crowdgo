@@ -15,6 +15,7 @@ var turn = 0;
 io.on('connection', function(socket){
   console.log('user connected to team ' + team);
   //emit team to player
+  io.emit('team', {'team': team});
   //flip team
   team = (team + 1) % 2;
 

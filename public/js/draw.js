@@ -12,7 +12,13 @@ var LINE_WIDTH = SQUARE_SIZE * (ref_line_width/REF_SQUARE);
 var BOARD_MARGIN = SQUARE_SIZE * margin_factor;
 var BOARD_SIZE = (SQUARE_SIZE * grid_size) + (BOARD_MARGIN * 2);
 
+var team = 2;
 document.addEventListener("DOMContentLoaded", drawBoard, false);
+
+socket.on('team', function(data){
+  team = data.team;
+  document.getElementById('teamNum').innerHTML += team;
+});
 
 socket.on('drawCircle', function(data){
   drawCircle(data.X, data.Y,data.turn);
