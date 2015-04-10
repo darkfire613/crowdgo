@@ -13,16 +13,21 @@ var team = 0;
 var turn = 0;
 
 io.on('connection', function(socket){
-  console.log('user connected to team ' + team);
+  var newUsrID = socket.id;
+  console.log('user ' + newUsrID + 'connected to team ' + team);
   //emit team to player
-  io.emit('team', {'team': team});
+  io.sockets.connected[newUsrID].emit('team', {'team': team});
+  //io.emit('team', {'team': team});
   //flip team
   team = (team + 1) % 2;
 
   socket.on('boardClick', function(data){
     console.log('X: ' + data.X + ' Y: ' + data.Y);
-    io.emit('drawCircle', {'X': data.X, 'Y': data.Y, 'turn': turn});
-    swapTurn();
+    if (data.team == turn)
+    {
+      io.emit('drawCircle', {'X': data.X, 'Y': data.Y, 'turn': turn});
+      swapTurn();
+    }
   });
 });
 

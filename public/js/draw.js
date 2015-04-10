@@ -83,7 +83,7 @@ function getPosition(event)
 
   console.log("centerX: " + centerX + " centerY: " + centerY);
 
-  socket.emit('boardClick', {'X': centerX, 'Y': centerY});
+  socket.emit('boardClick', {'X': centerX, 'Y': centerY, 'team': team});
 
 }
 
@@ -109,5 +109,4 @@ function drawCircle(x,y,turn)
   ctx.fill();
   console.log("drew circle at x: " + x + " y: " + y);
 
-  swapTurn();
 }
