@@ -10,6 +10,8 @@ app.get('/', function (req, res) {
 });
 
 var team = 0;
+var turn = 0;
+
 io.on('connection', function(socket){
   console.log('user connected to team ' + team);
   //emit team to player
@@ -18,11 +20,17 @@ io.on('connection', function(socket){
 
   socket.on('boardClick', function(data){
     console.log('X: ' + data.X + ' Y: ' + data.Y);
-    io.emit('drawCircle', data);
+    io.emit('drawCircle', {'X': data.X, 'Y': data.Y, 'turn': turn});
+    swapTurn();
   });
 });
 
 
 http.listen(process.env.PORT || 4000, function(){
-  console.log("listening on *.4000");
+  console.log("listening on " + process.env.PORT);
 });
+
+function swapTurn()
+{
+  turn = (turn + 1) % 2;
+}

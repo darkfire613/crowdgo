@@ -12,12 +12,10 @@ var LINE_WIDTH = SQUARE_SIZE * (ref_line_width/REF_SQUARE);
 var BOARD_MARGIN = SQUARE_SIZE * margin_factor;
 var BOARD_SIZE = (SQUARE_SIZE * grid_size) + (BOARD_MARGIN * 2);
 
-var turn = 0;
-
 document.addEventListener("DOMContentLoaded", drawBoard, false);
 
 socket.on('drawCircle', function(data){
-  drawCircle(data.X, data.Y);
+  drawCircle(data.X, data.Y,data.turn);
   console.log('received X: ' + data.X + " Y: " + data.Y);
 });
 
@@ -57,7 +55,6 @@ function drawBoard()
 
 function getPosition(event)
 {
-  console.log("turn " + turn);
   var canvas = document.getElementById("canvas");
 
   var x = event.x;
@@ -84,7 +81,7 @@ function getPosition(event)
 
 }
 
-function drawCircle(x,y)
+function drawCircle(x,y,turn)
 {
 //sets context of canvas
   var ctx = canvas.getContext("2d");
@@ -107,9 +104,4 @@ function drawCircle(x,y)
   console.log("drew circle at x: " + x + " y: " + y);
 
   swapTurn();
-}
-
-function swapTurn()
-{
-  turn = (turn + 1) % 2;
 }
