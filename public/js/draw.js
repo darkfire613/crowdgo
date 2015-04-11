@@ -13,6 +13,7 @@ var BOARD_MARGIN = SQUARE_SIZE * margin_factor;
 var BOARD_SIZE = (SQUARE_SIZE * grid_size) + (BOARD_MARGIN * 2);
 
 var team = 2;
+var turn = 2;
 
 //draws board when the page loads
 document.addEventListener("DOMContentLoaded", drawBoard, false);
@@ -22,10 +23,11 @@ document.addEventListener("DOMContentLoaded", drawBoard, false);
 socket.on('team', function(data){
   team = data.team;
   document.getElementById('teamNum').innerHTML += team;
+  turn = data.turn;
+  document.getElementById('turnNum').innerHTML = turn;
 });
 
 socket.on('drawCircle', function(data){
-  document.getElementById('turnNum').innerHTML = data.turn;
   drawCircle(data.X, data.Y,data.turn);
   console.log('received X: ' + data.X + " Y: " + data.Y);
 });
@@ -127,5 +129,12 @@ function drawCircle(x,y,turn)
   }
   ctx.fill();
   console.log("drew circle at x: " + x + " y: " + y);
+  changeTurn();
 
+}
+
+function changeTurn()
+{
+  turn = (turn + 1) % 2;
+  document.getElementById('turnNum').innerHTML = turn;
 }

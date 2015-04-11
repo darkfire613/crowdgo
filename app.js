@@ -22,7 +22,7 @@ io.on('connection', function(socket){
   var newUsrID = socket.id;
   console.log('user ' + newUsrID + 'connected to team ' + team);
   //emit team to player
-  io.sockets.connected[newUsrID].emit('team', {'team': team});
+  io.sockets.connected[newUsrID].emit('team', {'team': team, 'turn': turn});
   //io.emit('team', {'team': team});
   //flip team
   team = (team + 1) % 2;
