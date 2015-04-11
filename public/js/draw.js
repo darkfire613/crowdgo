@@ -13,14 +13,19 @@ var BOARD_MARGIN = SQUARE_SIZE * margin_factor;
 var BOARD_SIZE = (SQUARE_SIZE * grid_size) + (BOARD_MARGIN * 2);
 
 var team = 2;
+
+//draws board when the page loads
 document.addEventListener("DOMContentLoaded", drawBoard, false);
 
+
+// socket listeners
 socket.on('team', function(data){
   team = data.team;
   document.getElementById('teamNum').innerHTML += team;
 });
 
 socket.on('drawCircle', function(data){
+  document.getElementById('turnNum').innerHTML = data.turn;
   drawCircle(data.X, data.Y,data.turn);
   console.log('received X: ' + data.X + " Y: " + data.Y);
 });
@@ -29,6 +34,8 @@ socket.on('playerCount', function(data){
   document.getElementById('players').innerHTML = data.players;
 });
 
+
+//functions
 function drawBoard()
 {
   var canvas = document.getElementById("canvas");
@@ -66,9 +73,10 @@ function drawBoard()
 function getPosition(event)
 {
   var canvas = document.getElementById("canvas");
-
+//gets x and y position of click
   var x = event.x;
   var y = event.y;
+
 
   x -= canvas.offsetLeft;
   y -= canvas.offsetTop;
@@ -77,18 +85,25 @@ function getPosition(event)
   var i = (x - BOARD_MARGIN) / SQUARE_SIZE;
   var j = (y - BOARD_MARGIN) / SQUARE_SIZE;
 
+//i and j are the value of the intersection you clicked on
   i = Math.round(i);
   j = Math.round(j);
 
   console.log("x: " + x + " y: " + y + " i: " + i + " j: " + j);
 
+
+  vertexCoords(i,j);
+}
+
+function vertexCoords(i,j)
+{
   var centerX = BOARD_MARGIN + (i * SQUARE_SIZE);
   var centerY = BOARD_MARGIN + (j * SQUARE_SIZE);
 
   console.log("centerX: " + centerX + " centerY: " + centerY);
 
+// tells the server where clicked
   socket.emit('boardClick', {'X': centerX, 'Y': centerY, 'team': team});
-
 }
 
 function drawCircle(x,y,turn)

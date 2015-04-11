@@ -14,8 +14,11 @@ var turn = 0;
 var connected = 0;
 
 io.on('connection', function(socket){
+
   connected++;
+//update player count
   io.emit('playerCount', {'players': connected});
+//get newest user's ID for team assignment
   var newUsrID = socket.id;
   console.log('user ' + newUsrID + 'connected to team ' + team);
   //emit team to player
