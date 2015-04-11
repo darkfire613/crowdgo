@@ -25,6 +25,10 @@ socket.on('drawCircle', function(data){
   console.log('received X: ' + data.X + " Y: " + data.Y);
 });
 
+socket.on('playerCount', function(data){
+  document.getElementById('players').innerHTML = data.players;
+});
+
 function drawBoard()
 {
   var canvas = document.getElementById("canvas");

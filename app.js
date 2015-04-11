@@ -11,8 +11,11 @@ app.get('/', function (req, res) {
 
 var team = 0;
 var turn = 0;
+var connected = 0;
 
 io.on('connection', function(socket){
+  connected++;
+  io.emit('playerCount', {'players': connected});
   var newUsrID = socket.id;
   console.log('user ' + newUsrID + 'connected to team ' + team);
   //emit team to player
@@ -29,6 +32,11 @@ io.on('connection', function(socket){
       swapTurn();
     }
   });
+});
+
+io.on('disconnect', function(socket){
+  connected--;
+  io.emit('playerCount', {'players': connected});
 });
 
 
