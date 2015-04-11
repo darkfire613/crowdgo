@@ -32,11 +32,10 @@ io.on('connection', function(socket){
       swapTurn();
     }
   });
-});
-
-io.on('disconnect', function(socket){
-  connected--;
-  io.emit('playerCount', {'players': connected});
+  socket.on('disconnect', function(socket){
+    connected--;
+    io.emit('playerCount', {'players': connected});
+  });
 });
 
 
