@@ -2,24 +2,40 @@ var socket = io();
 
 //Variable ADJUST THESE
 var scale = 0.6; //scale factor for board size
-var grid_size = 8; //# of squares.
+var lines = 9; //# of lines, 9 is default but will get overwritten by server
 var ref_line_width = 3; //width of the lines (gets scaled)
 var margin_factor = 0.25; //width of margin as percent of square
 //Static DO NOT CHANGE
-var REF_SQUARE = 100;
-var SQUARE_SIZE = REF_SQUARE * scale;
-var LINE_WIDTH = SQUARE_SIZE * (ref_line_width/REF_SQUARE);
-var BOARD_MARGIN = SQUARE_SIZE * margin_factor;
-var BOARD_SIZE = (SQUARE_SIZE * grid_size) + (BOARD_MARGIN * 2);
+var GRID_SIZE;
+var REF_SQUARE;
+var SQUARE_SIZE;
+var LINE_WIDTH;
+var BOARD_MARGIN;
+var BOARD_SIZE;
 
 var team = 2;
 var turn = 2;
 
 //draws board when the page loads
-document.addEventListener("DOMContentLoaded", drawBoard, false);
+// document.addEventListener("DOMContentLoaded", drawBoard, false);
+// console.log('Board drawn');
 
 
 // socket listeners
+socket.on ('handshake', function(data){
+  document.getElementById('players').innerHTML = data.players;
+  lines = data.lines;
+  console.log('handshake received.');
+  console.log('number of players: ' + data.players);
+  console.log('number of lines: ' + data.lines);
+  console.log('local lines: ' + lines);
+  // draws board on socket handshake
+  updateBoard();
+  drawBoard();
+
+
+});
+
 socket.on('team', function(data){
   team = data.team;
   document.getElementById('teamNum').innerHTML += team;
@@ -32,12 +48,34 @@ socket.on('drawCircle', function(data){
   console.log('received X: ' + data.X + " Y: " + data.Y);
 });
 
+
+// covered by handshake
+/*
 socket.on('playerCount', function(data){
   document.getElementById('players').innerHTML = data.players;
 });
 
+socket.on('boardsize', function(data){
+  lines = data.lines;
+  console.log('received lines: ' + data.lines);
+  console.log('updating lines: ' + lines);
+});
+*/
 
 //functions
+
+// updates the data used to draw the board
+function updateBoard()
+{
+  console.log('updating board');
+  GRID_SIZE = lines - 1;
+  REF_SQUARE = 100;
+  SQUARE_SIZE = REF_SQUARE * scale;
+  LINE_WIDTH = SQUARE_SIZE * (ref_line_width/REF_SQUARE);
+  BOARD_MARGIN = SQUARE_SIZE * margin_factor;
+  BOARD_SIZE = (SQUARE_SIZE * GRID_SIZE) + (BOARD_MARGIN * 2);
+}
+
 function drawBoard()
 {
   var canvas = document.getElementById("canvas");
@@ -58,9 +96,9 @@ function drawBoard()
     ctx.fillRect (0, 0, BOARD_SIZE, BOARD_SIZE);
 
 //draws the grid with double for loops
-    for (var i = 0; i < grid_size; i++)
+    for (var i = 0; i < GRID_SIZE; i++)
       {
-        for (var j = 0; j < grid_size; j++)
+        for (var j = 0; j < GRID_SIZE; j++)
         {
           ctx.lineWidth = LINE_WIDTH;
           ctx.strokeRect( (SQUARE_SIZE*i)+(SQUARE_SIZE/4), (SQUARE_SIZE*j)+(SQUARE_SIZE/4), SQUARE_SIZE, SQUARE_SIZE);
