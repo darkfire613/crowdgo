@@ -13,6 +13,12 @@ var LINE_WIDTH;
 var BOARD_MARGIN;
 var BOARD_SIZE;
 
+var BoardEnum = Object.freeze({
+  BLACK: 0,
+  WHITE: 1,
+  EMPTY: -1
+});
+
 // will never be 2, if you see 2 it means server didnt init
 var team = 2;
 var turn = 2;
@@ -32,6 +38,7 @@ socket.on ('handshake', function(data){
   console.log('local lines: ' + lines);
   // draws board on socket handshake
   drawBoard();
+  drawInitState(data.gameboard);
 });
 
 socket.on('boardsize', function(data){
@@ -47,7 +54,8 @@ socket.on('team', function(data){
 });
 
 socket.on('drawCircle', function(data){
-  drawCircle(data.X, data.Y,data.turn);
+  drawCircle(data.X, data.Y, data.turn);
+  swapTurn();
   console.log('received X: ' + data.X + " Y: " + data.Y);
 });
 
@@ -94,6 +102,7 @@ function drawBoard()
   {
 //ctx is the context, 2d calls the 2d API
     var ctx = canvas.getContext("2d");
+    ctx.translate(0.5, 0.5);
 
 //draws rectangle for board filling the canvas
     ctx.fillStyle = "rgb(238, 221, 145)";
@@ -111,34 +120,61 @@ function drawBoard()
       console.log("drew board");
   }
 
-  canvas.addEventListener("mousedown", getPosition, false);
+  /*TODO: needs to call a draw function which itself has a more
+    general getPosition function called within it. Also, vertexCoords
+    needs to have its socket.emit part separated to another function that gets called secondarily to make the function more universally
+    usable, for drawing the initial board position for example. Rework
+    the synergy between these three functions to make a more
+    streamlined drawing workflow
+  */
+  canvas.addEventListener("mousedown", onClick, false);
 }
 
-function getPosition(event)
+function onClick(event)
 {
-  var canvas = document.getElementById("canvas");
-//gets x and y position of click
+  console.log('onClick:');
+
+  // x and y coords of the click
   var x = event.x;
   var y = event.y;
 
+  // gets the board position of the intersection closest to click
+  var gridPos = getPosition(x,y);
+  var i = gridPos.i;
+  var j = gridPos.j;
+  console.log('i: ' + i + ' j: ' + j);
 
+  // takes the board position and calculates x and y coordinates
+  var coords = vertexCoords(i,j);
+
+  // sends the data to the server
+  sendCoords(coords.centerX, coords.centerY, i, j, team);
+
+  // server then sends the draw command to everyone
+}
+
+function getPosition(x,y)
+{
+  var canvas = document.getElementById("canvas");
+
+// adjust for canvas offset
   x -= canvas.offsetLeft;
   y -= canvas.offsetTop;
 
-//see notebook page 18 for explanation of formula.
+// see notebook page 18 for explanation of formula.
   var i = (x - BOARD_MARGIN) / SQUARE_SIZE;
   var j = (y - BOARD_MARGIN) / SQUARE_SIZE;
 
-//i and j are the value of the intersection you clicked on
+// i and j are the value of the intersection you clicked on
   i = Math.round(i);
   j = Math.round(j);
 
   console.log("x: " + x + " y: " + y + " i: " + i + " j: " + j);
 
-
-  vertexCoords(i,j);
+  return {'i': i, 'j': j};
 }
 
+// returns the vertex pixel coords based on grid coords
 function vertexCoords(i,j)
 {
   var centerX = BOARD_MARGIN + (i * SQUARE_SIZE);
@@ -147,10 +183,17 @@ function vertexCoords(i,j)
   console.log("centerX: " + centerX + " centerY: " + centerY);
 
 // tells the server where clicked
-  socket.emit('boardClick', {'X': centerX, 'Y': centerY, 'team': team});
+// X and Y are the pixel coordinates. i and j are the board coordinates
+  return {'centerX': centerX, 'centerY': centerY};
 }
 
-function drawCircle(x,y,turn)
+function sendCoords(x,y,i,j,team)
+{
+  console.log('sending coords to server');
+  socket.emit('boardClick', {'X': x, 'Y': y, 'i': i, 'j': j, 'team': team});
+}
+
+function drawCircle(x,y,color)
 {
 //sets context of canvas
   var ctx = canvas.getContext("2d");
@@ -161,23 +204,49 @@ function drawCircle(x,y,turn)
 //draws a circle
   ctx.arc (x, y, radius, 0, 2 * Math.PI, false);
 //alternates color of circle
-  if (turn == 0)
+  if (color == BoardEnum.BLACK)
   {
     ctx.fillStyle = '#000';
   }
-  else
+  else if (color == BoardEnum.WHITE)
   {
     ctx.fillStyle = '#FFF';
   }
   ctx.fill();
   console.log("drew circle at x: " + x + " y: " + y);
-  changeTurn();
-
 }
 
-function changeTurn()
+function drawInitState(gameboard)
 {
-  turn = (turn + 1) % 2;
+  console.log('initial state setup:')
+  for (var i = 0; i < gameboard.length; i++)
+  {
+    for (var j = 0; j < gameboard.length; j++)
+    {
+      if (gameboard[i][j] != BoardEnum.EMPTY)
+      {
+        console.log('drawing ' + gameboard[i][j] + ' at ' + i + ',' + j);
+        coords = vertexCoords(i,j);
+        drawCircle(coords.centerX, coords.centerY, gameboard[i][j]);
+      }
+    }
+  }
+}
+
+function swapTurn()
+{
+  if (turn == BoardEnum.BLACK)
+  {
+    turn = BoardEnum.WHITE;
+  }
+  else if (turn == BoardEnum.WHITE)
+  {
+    turn = BoardEnum.BLACK;
+  }
+  else
+  {
+    console.log('error: turn variable set incorrectly');
+  }
   document.getElementById('turnNum').innerHTML = turn;
 }
 

@@ -3,8 +3,12 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-var BLACK = 0;
-var WHITE = 1;
+
+var BoardEnum = Object.freeze({
+  BLACK: 0,
+  WHITE: 1,
+  EMPTY: -1
+});
 
 app.use(express.static(__dirname + '/public'));
 
@@ -21,17 +25,15 @@ var connected = 0;
 var lines = 9;
 
 var gameboard = makeBoard(lines);
-logBoard(gameboard);
-
-
-
+// logBoard(gameboard);
 
 io.on('connection', function(socket){
 
   connected++;
   // handshake contains all init data for game
   io.emit ('handshake', {'lines': lines,
-                         'players': connected});
+                         'players': connected,
+                         'gameboard': gameboard});
   // send player board size
   // io.emit('boardsize', {'lines': lines});
   // update player count
@@ -45,12 +47,14 @@ io.on('connection', function(socket){
   // flip team
   team = (team + 1) % 2;
 
-  // pushes click to all players
+  // pushes click to all players and logs click in board
   socket.on('boardClick', function(data){
-    console.log('X: ' + data.X + ' Y: ' + data.Y);
+    console.log('X: ' + data.X + ' Y: ' + data.Y + ' team: ' + data.team);
     if (data.team == turn)
     {
       io.emit('drawCircle', {'X': data.X, 'Y': data.Y, 'turn': turn});
+      gameboard[data.i][data.j] = turn;
+      // logBoard(gameboard);
       swapTurn();
     }
   });
@@ -81,7 +85,19 @@ http.listen(process.env.PORT || 4000, function(){
 
 function swapTurn()
 {
-  turn = (turn + 1) % 2;
+  if (turn == BoardEnum.BLACK)
+  {
+    turn = BoardEnum.WHITE;
+  }
+  else if (turn == BoardEnum.WHITE)
+  {
+    turn = BoardEnum.BLACK;
+  }
+  else
+  {
+    console.log('error: turn variable set incorrectly');
+  }
+
 }
 
 // takes an integer for size and returns a 2d array of size x size
@@ -93,11 +109,12 @@ function makeBoard(size)
     board[i] = new Array(size);
   }
 
+  // initializes the board to empty
   for (var i = 0; i < size; i++)
   {
     for (var j = 0; j < size; j++)
     {
-      board[i][j] = (i + ',' + j);
+      board[i][j] = BoardEnum.EMPTY;
       // console.log(board[i][j]);
     }
   }
