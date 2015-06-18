@@ -13,6 +13,7 @@ var LINE_WIDTH;
 var BOARD_MARGIN;
 var BOARD_SIZE;
 
+// will never be 2, if you see 2 it means server didnt init
 var team = 2;
 var turn = 2;
 
@@ -30,10 +31,12 @@ socket.on ('handshake', function(data){
   console.log('number of lines: ' + data.lines);
   console.log('local lines: ' + lines);
   // draws board on socket handshake
-  updateBoard();
   drawBoard();
+});
 
-
+socket.on('boardsize', function(data){
+  lines = data.lines;
+  drawBoard();
 });
 
 socket.on('team', function(data){
@@ -78,6 +81,7 @@ function updateBoard()
 
 function drawBoard()
 {
+  updateBoard();
   var canvas = document.getElementById("canvas");
 //sets canvas size to board size
   canvas.width = BOARD_SIZE;
@@ -175,4 +179,27 @@ function changeTurn()
 {
   turn = (turn + 1) % 2;
   document.getElementById('turnNum').innerHTML = turn;
+}
+
+function incBoard()
+{
+  if (lines < 19)
+  {
+    lines++;
+    socket.emit('boardSizeChange', {'lines': lines});
+    console.log('increased board to ' + lines);
+    drawBoard();
+  }
+}
+
+function decBoard()
+{
+  if (lines > 2)
+  {
+    lines--;
+    socket.emit('boardSizeChange', {'lines': lines});
+    console.log('decrased board to ' + lines);
+    drawBoard();
+  }
+
 }

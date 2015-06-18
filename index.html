@@ -4,14 +4,18 @@
   <link rel="stylesheet" type="text/css" href="/css/main.css">
  </head>
  <body>
-   <canvas id="canvas" width="850" height="850"></canvas>
-   <br>
-   <span id="teamNum">YOU ARE ON TEAM </span>
-   <br>
-   <span>PLAYERS CONNECTED: <span id='players'>X</span></span>
-   <br>
-   <span>TURN <span id='turnNum'>X</span></span>
-
+  <canvas id="canvas" width="850" height="850"></canvas>
+  <br>
+  <span id="teamNum">YOU ARE ON TEAM </span>
+  <br>
+  <span>PLAYERS CONNECTED: <span id='players'>X</span></span>
+  <br>
+  <span>TURN <span id='turnNum'>X</span></span>
+  <br>
+  <input id="increase" type="button" value="+" onclick="incBoard();" />
+  <br>
+  <input id="decrease" type="button" value="-" onclick="decBoard();" />
+  <br>
 
    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
    <script src="/socket.io/socket.io.js"></script>

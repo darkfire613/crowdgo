@@ -3,6 +3,9 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+var BLACK = 0;
+var WHITE = 1;
+
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function (req, res) {
@@ -15,9 +18,11 @@ var turn = 0;
 var connected = 0;
 
 // lines is the number of lines on the board along one axis
-var lines = 3;
+var lines = 9;
 
-// var gameboard = makeBoard ()
+var gameboard = makeBoard(lines);
+logBoard(gameboard);
+
 
 
 
@@ -40,6 +45,7 @@ io.on('connection', function(socket){
   // flip team
   team = (team + 1) % 2;
 
+  // pushes click to all players
   socket.on('boardClick', function(data){
     console.log('X: ' + data.X + ' Y: ' + data.Y);
     if (data.team == turn)
@@ -48,6 +54,13 @@ io.on('connection', function(socket){
       swapTurn();
     }
   });
+
+  // pushes board size to all players
+  socket.on('boardSizeChange', function(data){
+    lines = data.lines;
+    io.emit('boardsize', {'lines': lines});
+  });
+
   socket.on('disconnect', function(socket){
     connected--;
     io.emit('playerCount', {'players': connected});
@@ -56,7 +69,14 @@ io.on('connection', function(socket){
 
 
 http.listen(process.env.PORT || 4000, function(){
-  console.log("listening on " + process.env.PORT);
+  if (process.env.PORT != null)
+  {
+    console.log("listening on " + process.env.PORT);
+  }
+  else
+  {
+    console.log("listening on *.4000");
+  }
 });
 
 function swapTurn()
@@ -73,5 +93,26 @@ function makeBoard(size)
     board[i] = new Array(size);
   }
 
+  for (var i = 0; i < size; i++)
+  {
+    for (var j = 0; j < size; j++)
+    {
+      board[i][j] = (i + ',' + j);
+      // console.log(board[i][j]);
+    }
+  }
+
   return board;
+}
+
+function logBoard(board)
+{
+  for (var i = 0; i < board.length; i++)
+  {
+    for (var j = 0; j < board.length; j++)
+    {
+      console.log(board[i][j] + ' ');
+    }
+    console.log('\n');
+  }
 }
